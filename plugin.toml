@@ -1,0 +1,62 @@
+# Concord reads this to install and run Tic-tac-toe. Admins never edit it: the
+# settings below appear as forms in Concord (Server Settings > Plugins for
+# server_config_field, the channel's own settings for create_field).
+
+[plugin]
+id = "concord-tictactoe"
+name = "Tic-tac-toe"
+version = "0.1.0"            # release.go stamps the git tag here
+description = "Tic-tac-toe in a channel: sit down at a table, challenge a member, or play the computer. Pieces in your theme's colors, with sounds."
+source_url = "https://github.com/JMThomas00/concord-tictactoe"
+
+# Piece pictures and sounds in client/, served by Concord to members.
+[client]
+capabilities = ["images", "sound"]
+
+[process]
+restart_on_crash = true
+max_restarts = 5
+
+[process.entrypoint.linux]
+bin = "concord-tictactoe"
+[process.entrypoint.darwin]
+bin = "concord-tictactoe"
+[process.entrypoint.windows]
+bin = "concord-tictactoe.exe"
+
+[[channel_kind]]
+kind = "table"
+display_name = "Tic-tac-toe"
+icon = "#"
+remote_pane = true
+
+  # How people find opponents -- the table kit's seating modes.
+  [[channel_kind.create_field]]
+  key = "seating"
+  label = "Seating"
+  type = "select"
+  options = ["seats", "challenge", "private"]
+  default = "seats"
+  help = "seats: one table, sit down to play · challenge: invite members from a lobby · private: your own games with chosen opponents"
+
+  [[channel_kind.create_field]]
+  key = "allow_spectators"
+  label = "Allow spectators"
+  type = "boolean"
+  default = "true"
+  help = "Let members who aren't playing watch games"
+
+  [[channel_kind.create_field]]
+  key = "computer_opponent"
+  label = "Computer opponent"
+  type = "boolean"
+  default = "true"
+  help = "Let players play against the computer"
+
+  [[channel_kind.create_field]]
+  key = "computer_level"
+  label = "Computer strength"
+  type = "select"
+  options = ["easy", "normal", "hard"]
+  default = "normal"
+  help = "How well the computer plays"
