@@ -60,8 +60,8 @@ func TestAGameInAChannel(t *testing.T) {
 	x := srv.Enter(ch, "alice", 80, 30)
 	o := srv.Enter(ch, "bob", 80, 30)
 	for _, v := range []*plugintest.Viewer{x, o} {
-		srv.FrameContaining(v, "Tab: sit down")
-		srv.Key(v, "tab")
+		srv.FrameContaining(v, "M: sit down")
+		srv.Key(v, "m")
 		srv.Key(v, "enter")
 	}
 	srv.FrameContaining(x, "Your move")
@@ -99,7 +99,7 @@ func TestAGameInAChannel(t *testing.T) {
 func TestHelpAndTheCompactBoard(t *testing.T) {
 	srv, ch := start(t)
 	small := srv.Enter(ch, "carol", 40, 12)
-	frame := srv.FrameContaining(small, "Tab: sit down")
+	frame := srv.FrameContaining(small, "M: sit down")
 	if strings.Contains(frame, "╭") {
 		t.Fatalf("a small pane should get the compact grid:\n%s", frame)
 	}
@@ -108,8 +108,14 @@ func TestHelpAndTheCompactBoard(t *testing.T) {
 	}
 	srv.Key(small, "?")
 	srv.FrameContaining(small, "Three in a row")
+	if c := srv.Claimed(small); len(c) != 1 || c[0] != wire.PaneKeyEsc {
+		t.Fatalf("help open claims %v", c)
+	}
 	srv.Key(small, "esc")
 	srv.FrameContaining(small, "? rules and keys")
+	if len(srv.Claimed(small)) != 0 {
+		t.Fatal("Esc still claimed after closing help")
+	}
 }
 
 func TestSounds(t *testing.T) {

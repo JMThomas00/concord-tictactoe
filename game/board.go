@@ -70,7 +70,7 @@ func (b *Board) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (b *Board) move(cell string) {
 	if !b.seat.MyTurn() {
 		if b.seat.Outcome().Over {
-			b.err = "the game is over — Tab for a rematch"
+			b.err = "the game is over — M for a rematch"
 		} else {
 			b.err = "not your turn"
 		}
@@ -79,6 +79,15 @@ func (b *Board) move(cell string) {
 	if err := b.seat.Play(cell); err != nil {
 		b.err = err.Error()
 	}
+}
+
+// ClaimedKeys keeps Esc while the help screen is open, so Esc closes it;
+// otherwise Esc is Concord's, to leave the pane.
+func (b *Board) ClaimedKeys() []string {
+	if b.help {
+		return []string{wire.PaneKeyEsc}
+	}
+	return nil
 }
 
 func (b *Board) game() *engine.Game { return b.seat.Game().(*engine.Game) }
@@ -313,9 +322,9 @@ func (b *Board) helpView() string {
 		{k.Render("← → ↑ ↓") + or + k.Render("h j k l"), "move the cursor"},
 		{k.Render("Enter") + or + k.Render("Space"), "place your mark"},
 		{k.Render("1") + d.Render("–") + k.Render("9"), "place it directly (1 2 3 / 4 5 6 / 7 8 9)"},
-		{k.Render("Tab"), "sit, stand, rematch, play the computer"},
+		{k.Render("M"), "the table menu: sit, stand, rematch, the computer"},
 		{k.Render("?"), "this help"},
-		{k.Render("q") + or + k.Render("Esc"), "back to Concord"},
+		{k.Render("Esc"), "back to Concord (Tab: the member list)"},
 	} {
 		pad := max(1, 22-lipgloss.Width(row[0]))
 		lines = append(lines, row[0]+strings.Repeat(" ", pad)+t.Render(row[1]))

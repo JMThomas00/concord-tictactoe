@@ -35,14 +35,15 @@ You need to be the server owner, or have the **Manage Plugins** permission.
    restart, no files to edit.
 3. Open **Server Settings → Channels**, create a channel, and choose
    **Tic-tac-toe** as its type. Its options:
-   - **Seating**: *seats* (one board; sit down with Tab, everyone else
+   - **Seating**: *seats* (one board; sit down with M, everyone else
      watches), *challenge* (a lobby where members challenge each other), or
      *private* (your own games with opponents you pick).
    - **Allow spectators**, **Computer opponent**, and **Computer strength**
      (easy, normal or hard).
 4. Select the channel and press **Tab** (or click the board) so your keys go
-   to the game. **Tab** again opens the table menu: sit down, play the
-   computer, resign, rematch. **Ctrl+]** gives the keyboard back to Concord.
+   to the game. **M** opens the table menu: sit down, play the computer,
+   resign, rematch. **Esc** gives the keyboard back to Concord, and **Tab**
+   moves on to the member list.
 
 The pieces are pictures in terminals that can show them (Windows Terminal,
 iTerm2, WezTerm, Kitty, Ghostty, foot, and others). Elsewhere, and when
@@ -58,8 +59,10 @@ Enter. A failed update rolls back by itself.
 - **1–9** place it directly, numbered like a phone keypad read left to right:
   `1 2 3` on top, `7 8 9` at the bottom.
 - **?** shows the rules and keys.
-- **Tab** opens the table menu: sit, stand, resign, rematch, play the computer.
-- **q** or **Esc** hands the keyboard back to Concord.
+- **M** opens the table menu: sit, stand, resign, rematch, play the computer
+  (playing standalone, Tab does too).
+- **Esc** hands the keyboard back to Concord (or closes the help screen).
+  **Tab** moves on to the member list.
 
 The last move is marked with a dot, and a winning line is highlighted.
 
