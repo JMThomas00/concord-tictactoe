@@ -2,8 +2,10 @@
 
 Tic-tac-toe for the terminal and for
 [Concord](https://github.com/JMThomas00/Concord) channels, from the same
-program. In Concord the X and O are pictures drawn in your theme's colors,
-with a sound for each move, a win and a draw.
+program. In Concord it's a little arcade cabinet: a title screen where the
+computer plays itself, a menu, pixel-art pieces in your theme's colours,
+chiptune sounds, a Hall of Fame, and **Gold Stars** to spend on new piece
+sets and boards. A draw is a cat's game, with the cat.
 
 ## Play it on your own computer
 
@@ -40,15 +42,33 @@ You need to be the server owner, or have the **Manage Plugins** permission.
      *private* (your own games with opponents you pick).
    - **Allow spectators**, **Computer opponent**, and **Computer strength**
      (easy, normal or hard).
-4. Select the channel and press **Tab** (or click the board) so your keys go
-   to the game. **M** opens the table menu: sit down, play the computer,
-   resign, rematch. **Esc** gives the keyboard back to Concord, and **Tab**
-   moves on to the member list.
+4. Select the channel and press **Tab** (or click it) so your keys go to the
+   game. Press **Enter** on the title screen, then pick from the menu.
 
-The pieces are pictures in terminals that can show them (Windows Terminal,
-iTerm2, WezTerm, Kitty, Ghostty, foot, and others). Elsewhere, and when
-playing standalone, they're drawn with block characters in the same colors.
-Either way they follow the viewer's Concord theme, including custom ones.
+## The arcade
+
+Everyone who opens the channel starts on the title screen. The menu:
+
+- **1 PLAYER VS CPU** `◂ NORMAL ▸`: a game of your own against the computer
+  (←/→ picks easy, normal or hard; the hard one never loses). Leave and come
+  back, and it picks up where you were.
+- **TAKE A SEAT** (seats channels) sits you at the channel's table; in a
+  challenge channel it's **2 PLAYERS** (challenge someone) and **WATCH**, in a
+  private one **NEW GAME** and **YOUR GAMES**.
+- **SETS**: your piece set and board. 12 piece sets (classic, chunky, grapes
+  and leaves, hearts and stars ... up to tiny cars, a duck and a toaster, and
+  a sock and sandal) and 7 boards (notebook, chalkboard, wooden, neon, picnic
+  blanket, vineyard trellis). Everyone sees the game in their own.
+- **HALL OF FAME**, **HOW TO PLAY** and **OPTIONS** (your sound and effects).
+
+You earn a **Gold Star** for each new achievement, every three wins in a row
+and every ten games. Spend one in SETS on a locked set or board: you're
+offered three and pick one.
+
+After a game, **Enter** shows the results; Enter again asks for a rematch,
+which starts once both players have. **Esc** goes back a screen (on the title
+screen it gives the keyboard back to Concord). A pane smaller than 64 x 24
+gets the plain board instead.
 
 To update later: select it in **Server Settings → Plugins**, press **U**, then
 Enter. A failed update rolls back by itself.
@@ -61,8 +81,7 @@ Enter. A failed update rolls back by itself.
 - **?** shows the rules and keys.
 - **M** opens the table menu: sit, stand, resign, rematch, play the computer
   (playing standalone, Tab does too).
-- **Esc** hands the keyboard back to Concord (or closes the help screen).
-  **Tab** moves on to the member list.
+- **Esc** goes back to the menu (or closes the help screen).
 
 The last move is marked with a dot, and a winning line is highlighted.
 
@@ -70,10 +89,12 @@ The last move is marked with a dot, and a winning line is highlighted.
 
 - `engine/`: the rules and the computer player (minimax at the hardest level).
 - `game/`: connects the engine to the Concord SDK's table kit, the board you
-  play on, and which piece picture matches the viewer's theme.
+  play on (`board.go`), the piece sets and boards (`sets.go`, `draw.go`) and the
+  arcade's personality (`arcade.go`: attract mode, the cat).
 - `client/`: the pictures and sounds Concord sends to members' clients.
 - `tools/gen.go`: `go run tools/gen.go` regenerates `client/` and
-  `game/pieces_gen.go` (a picture of each piece in every built-in theme's red and cyan).
+  `game/pieces_gen.go` (a picture of each piece in every built-in theme's red and cyan, for the
+  plain board) and the arcade sound kit.
 - `release.go`: `go run release.go` builds the release zips Concord installs.
 
 Tag a version (`git tag v0.1.0 && git push --tags`) and the workflow publishes them.

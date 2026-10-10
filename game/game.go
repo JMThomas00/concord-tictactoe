@@ -17,6 +17,7 @@ var Rules = table.Rules{
 	NewBoard:  func(s *table.Seat) tea.Model { return &Board{seat: s, cursor: 4} },
 	AI:        func(g table.Game, level int) string { return engine.BestMove(g.(*engine.Game), level) },
 	Sound:     sound,
+	Arcade:    arcadeLook,
 }
 
 // sound is what everyone watching hears after a move.

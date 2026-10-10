@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
+	"github.com/JMThomas00/Concord/sdk/arcade"
 	"github.com/JMThomas00/Concord/sdk/table"
 	"github.com/JMThomas00/Concord/sdk/wire"
 	"github.com/JMThomas00/concord-tictactoe/engine"
@@ -362,4 +363,59 @@ func (b *Board) Images() []wire.PaneImage {
 		})
 	}
 	return out
+}
+
+// ── The arcade (table.ArcadeBoard) ─────────────────────────────────────────
+
+// Draw draws the board on the arcade table, in the viewer's own piece set
+// and board style.
+func (b *Board) Draw(c *arcade.Canvas, x, y, w, h int) {
+	if b.help {
+		lines := strings.Split(b.helpText(), "\n")
+		for i, l := range lines {
+			if i < h {
+				c.Text(x+1, y+i, l, "fg", "", i == 0)
+			}
+		}
+		return
+	}
+	g := b.game()
+	cursor := -1
+	if b.seat.MyTurn() {
+		cursor = b.cursor
+	}
+	drawBoard(c, x, y, w, h, g.Cell, look{
+		style:  strings.TrimPrefix(b.seat.Equipped(kindBoard), boardPrefix),
+		set:    pieces(b.seat.Equipped(kindPieces)),
+		cursor: cursor,
+		win:    g.WinningLine(),
+		lit:    b.seat.Frame()/3%2 == 0,
+		last:   g.LastMove(),
+	})
+}
+
+// DrawSeat draws a seat's piece for the player panels.
+func (b *Board) DrawSeat(c *arcade.Canvas, seat, x, y, w, h int) {
+	rows, pal := pieces(b.seat.Equipped(kindPieces)).sprite(b.seat.SeatName(seat), false)
+	c.Sprite(x+(w-9)/2, 2*y, rows, pal, 1)
+}
+
+// Status is the board's own line for the status row: a rejected move.
+func (b *Board) Status() string { return b.err }
+
+// helpText is the ? page for the arcade table, as plain lines.
+func (b *Board) helpText() string {
+	return strings.Join([]string{
+		"TIC-TAC-TOE",
+		"",
+		"Take turns placing your piece; X goes first.",
+		"Three in a row -- across, down or diagonal -- wins.",
+		"A full board with no three in a row is a draw.",
+		"",
+		"Arrows or h j k l   move the cursor",
+		"Enter or Space      place your piece",
+		"1-9                 place it directly (1 2 3 / 4 5 6 / 7 8 9)",
+		"M                   the table menu: resign, rematch, the computer",
+		"? or Esc            close this",
+	}, "\n")
 }

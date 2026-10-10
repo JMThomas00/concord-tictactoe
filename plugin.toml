@@ -6,7 +6,7 @@
 id = "concord-tictactoe"
 name = "Tic-tac-toe"
 version = "0.1.0"            # release.go stamps the git tag here
-description = "Tic-tac-toe in a channel: sit down at a table, challenge a member, or play the computer. Pieces in your theme's colors, with sounds."
+description = "Tic-tac-toe as a little arcade cabinet: play the computer, sit down at a table or challenge a member. Pixel-art pieces in your theme, Gold Stars to unlock new sets and boards, chiptune sounds."
 source_url = "https://github.com/JMThomas00/concord-tictactoe"
 
 # Piece pictures and sounds in client/, served by Concord to members.
