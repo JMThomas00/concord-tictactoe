@@ -18,6 +18,7 @@ type look struct {
 	lit    bool
 	last   int  // the last move's cell, marked, or -1
 	ghost  bool // a locked silhouette
+	bare   bool // no frame around the grid (set by drawBoard when space is short)
 }
 
 // cellsFor picks a cell size for a board in w x h cells: pictures need 11 x
@@ -36,10 +37,40 @@ func cellsFor(w, h int) (cw, ch int, big bool) {
 // boardSize is the size of a board with cw x ch cells.
 func boardSize(cw, ch int) (int, int) { return 3*cw + 2, 3*ch + 2 }
 
+// frameOf is how far a board style draws outside its grid: columns each
+// side, rows above and below.
+func frameOf(style string) (mx, my int) {
+	switch style {
+	case "chalk", "wood", "vineyard":
+		return 1, 1
+	case "neon", "picnic":
+		return 2, 1
+	case "notebook":
+		return 4, 0
+	}
+	return 0, 0
+}
+
+// fit picks the cell size for a board in w x h cells, keeping its frame
+// inside too. When pictures fit only without the frame, the frame is left
+// off (bare): the pieces matter more.
+func fit(style string, w, h int) (cw, ch int, big, bare bool) {
+	mx, my := frameOf(style)
+	if cw, ch, big = cellsFor(w-2*mx, h-2*my); big {
+		return cw, ch, true, false
+	}
+	if cw2, ch2, big2 := cellsFor(w, h); big2 {
+		return cw2, ch2, true, true
+	}
+	bw, bh := boardSize(cw, ch)
+	return cw, ch, false, bw+2*mx > w || bh+2*my > h
+}
+
 // drawBoard draws a board centred in w x h cells at (x, y). cell gives each
 // square's piece ("", "X" or "O").
 func drawBoard(c *arcade.Canvas, x, y, w, h int, cell func(i int) string, l look) {
-	cw, ch, big := cellsFor(w, h)
+	cw, ch, big, bare := fit(l.style, w, h)
+	l.bare = bare
 	bw, bh := boardSize(cw, ch)
 	x += max(0, (w-bw)/2)
 	y += max(0, (h-bh)/2)
@@ -111,26 +142,32 @@ func drawGrid(c *arcade.Canvas, x, y, cw, ch int, l look) {
 			}
 		}
 	}
+	e := 1 // how far the frame reaches past the grid
+	if l.bare {
+		e = 0
+	}
 	switch l.style {
 	case "chalk":
-		c.Shade(x-1, y-1, bw+2, bh+2, bg("greenB"))
+		c.Shade(x-e, y-e, bw+2*e, bh+2*e, bg("greenB"))
 		lines(g("dim"), "┃", "━", "╋", bg("greenB"))
 	case "notebook":
 		for j := 1; j < bh; j += 2 {
-			c.Fill(x-2, y+j, bw+4, "┈", "ghost", "")
+			c.Fill(x-2*e, y+j, bw+4*e, "┈", "ghost", "")
 		}
-		for j := -1; j <= bh; j++ {
+		for j := 0; j < bh && !l.bare; j++ {
 			c.Text(x-4, y+j, "│", g("red"), "", false)
 		}
 		lines(g("fg"), "│", "─", "┼", "")
 	case "wood":
-		c.Shade(x-1, y-1, bw+2, bh+2, bg("orangeB"))
+		c.Shade(x-e, y-e, bw+2*e, bh+2*e, bg("orangeB"))
 		lines(g("orangeD"), "█", "█", "█", bg("orangeB"))
 	case "neon":
 		lines(g("pink"), "║", "═", "╬", "")
-		c.Box(x-2, y-1, bw+4, bh+2, g("purple"), "", "")
+		if !l.bare {
+			c.Box(x-2, y-1, bw+4, bh+2, g("purple"), "", "")
+		}
 	case "picnic":
-		for i := -2; i < bw+2; i++ {
+		for i := -2; i < bw+2 && !l.bare; i++ {
 			top, bot := "▄", "▀"
 			if i%2 != 0 {
 				top, bot = "▀", "▄"
@@ -138,7 +175,7 @@ func drawGrid(c *arcade.Canvas, x, y, cw, ch int, l look) {
 			c.Text(x+i, y-1, top, g("red"), "", false)
 			c.Text(x+i, y+bh, bot, g("red"), "", false)
 		}
-		for j := 0; j < bh; j++ {
+		for j := 0; j < bh && !l.bare; j++ {
 			a, b := "▌", "▐"
 			if j%2 != 0 {
 				a, b = "▐", "▌"
@@ -160,6 +197,9 @@ func drawGrid(c *arcade.Canvas, x, y, cw, ch int, l look) {
 			}
 		}
 		for _, X := range vx {
+			if l.bare {
+				break
+			}
 			c.Text(X, y-1, "❦", g("green"), "", false)
 		}
 	default:

@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -252,5 +253,31 @@ func TestSounds(t *testing.T) {
 	_ = g.Play("9")
 	if s := sound(g, "9"); s != "sounds/draw.wav" {
 		t.Fatalf("draw: %s", s)
+	}
+}
+
+// A board never draws outside the space it's given, frame included: on the
+// title screen that space runs right up to the tagline and PRESS ENTER.
+func TestBoardsStayInTheirSpace(t *testing.T) {
+	sgr := regexp.MustCompile(`[[0-9;]*m`)
+	const ax, ay = 10, 3
+	for _, b := range boardStyles {
+		for _, size := range [][2]int{{54, 14}, {42, 18}, {38, 17}, {40, 12}, {21, 6}} {
+			c := arcade.New(80, 24, arcade.NewPalette(nil))
+			drawBoard(c, ax, ay, size[0], size[1], func(i int) string { return sampleCells[i] },
+				look{style: b.ID, set: &pieceSets[0], cursor: -1, last: -1})
+			for y, raw := range strings.Split(c.String(), "\n") {
+				line := []rune(sgr.ReplaceAllString(raw, ""))
+				inside := y >= ay && y < ay+size[1]
+				for x, r := range line {
+					if r != ' ' && (!inside || x < ax || x >= ax+size[0]) {
+						t.Fatalf("%s at %v: %q drawn at %d,%d, outside its space", b.ID, size, r, x, y)
+					}
+				}
+				if !inside && strings.Contains(raw, "\x1b[") {
+					t.Fatalf("%s at %v: colour on row %d, outside its space", b.ID, size, y)
+				}
+			}
+		}
 	}
 }
