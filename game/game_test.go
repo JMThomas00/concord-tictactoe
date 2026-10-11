@@ -47,8 +47,10 @@ func start(t *testing.T) (*plugintest.Server, uuid.UUID) {
 	t.Helper()
 	srv := plugintest.NewServer(t)
 	ctx, cancel := context.WithCancel(context.Background())
-	t.Cleanup(cancel)
-	go plugin.Run(ctx, srv.Config(), table.New(Rules).Handler())
+	cfg := srv.Config()
+	done := make(chan struct{})
+	go func() { plugin.Run(ctx, cfg, table.New(Rules).Handler()); close(done) }()
+	t.Cleanup(func() { cancel(); <-done }) // the plugin stops before its data folder goes
 	srv.WaitReady()
 	ch := uuid.New()
 	srv.Channel(wire.Channel{ID: ch, Name: "tictactoe"})
